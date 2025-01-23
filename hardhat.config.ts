@@ -1,12 +1,12 @@
 import "@nomiclabs/hardhat-ethers";
 import type { HardhatUserConfig, HttpNetworkUserConfig } from "hardhat/types";
-import "@nomiclabs/hardhat-etherscan";
+import "@nomicfoundation/hardhat-verify";
 import "@nomiclabs/hardhat-waffle";
 import "solidity-coverage";
 import "hardhat-deploy";
 import dotenv from "dotenv";
 import yargs from "yargs";
-import { getSingletonFactoryInfo } from "@gnosis.pm/safe-singleton-factory";
+// import { getSingletonFactoryInfo } from "@gnosis.pm/safe-singleton-factory";
 
 const argv = yargs
     .option("network", {
@@ -45,13 +45,53 @@ const primarySolidityVersion = SOLIDITY_VERSION || "0.7.6";
 const soliditySettings = SOLIDITY_SETTINGS ? JSON.parse(SOLIDITY_SETTINGS) : undefined;
 
 const deterministicDeployment = (network: string): DeterministicDeploymentInfo => {
-    const info = getSingletonFactoryInfo(parseInt(network));
+
+    // hardcode this for now because the safe-singleton-factory package isn't updated with the latest
+
+    // const info = getSingletonFactoryInfo(parseInt(network));
+
+    let info;
+
+    // forma testnet
+    if (parseInt(network) === 984123) {
+        info = {
+            "gasPrice": 19000000000,
+            "gasLimit": 96586,
+            "signerAddress": "0xE1CB04A0fA36DdD16a06ea828007E35e1a3cBC37",
+            "transaction": "0xf8a88085046c7cfe008301794a8080b853604580600e600039806000f350fe7fffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffe03601600081602082378035828234f58015156039578182fd5b8082525050506014600cf3831e089aa031eeb9f0234d4aae95e0af160d586d67a04ab9b36685e47fb0f7a1819fde18ada0185adfad0544a9bdeb3dbb90394b0fe0dd586f15ee38437090e2584aa404ddf4",
+            "address": "0x914d7Fec6aaC8cd542e72Bca78B30650d45643d7"
+        };
+    }
+
+    // forma
+    if (parseInt(network) === 984122) {
+        info = {
+            "gasPrice": 25289000000,
+            "gasLimit": 96586,
+            "signerAddress": "0xE1CB04A0fA36DdD16a06ea828007E35e1a3cBC37",
+            "transaction": "0xf8a8808505e35784408301794a8080b853604580600e600039806000f350fe7fffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffe03601600081602082378035828234f58015156039578182fd5b8082525050506014600cf3831e0898a0c781e184013aeaf8a4ac819ddf0e4ec0f503b0839d4342028e03ee1edb45a288a01675cf287d06f936eadb653f1da57a161f7146e9641ebd158f686e448d022282",
+            "address": "0x914d7Fec6aaC8cd542e72Bca78B30650d45643d7"
+        };
+    }
+
+    // flame
+    if (parseInt(network) === 253368190) {
+        info = {
+            "gasPrice": 101000000000,
+            "gasLimit": 96586,
+            "signerAddress": "0xE1CB04A0fA36DdD16a06ea828007E35e1a3cBC37",
+            "transaction": "0xf8a98085178411b2008301794a8080b853604580600e600039806000f350fe7fffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffe03601600081602082378035828234f58015156039578182fd5b8082525050506014600cf3841e342f1fa0170f6d2de5464340cd3d3e0f05ab66d589a7814695516c42cec6f504ae15f6fca03ee5bbac77e4689e9e61bf9ba15b40abbd70e674e89971bc40092bcf8e8ba325",
+            "address": "0x914d7Fec6aaC8cd542e72Bca78B30650d45643d7"
+        };
+    }
+
     if (!info) {
         throw new Error(`
         Safe factory not found for network ${network}. You can request a new deployment at https://github.com/safe-global/safe-singleton-factory.
         For more information, see https://github.com/safe-global/safe-contracts#replay-protection-eip-155
       `);
     }
+
     return {
         factory: info.address,
         deployer: info.signerAddress,
@@ -129,7 +169,9 @@ const userConfig: HardhatUserConfig = {
         timeout: 2000000,
     },
     etherscan: {
-        apiKey: ETHERSCAN_API_KEY,
+        apiKey: {
+            custom: ETHERSCAN_API_KEY!,
+        },
     },
 };
 if (NODE_URL) {
