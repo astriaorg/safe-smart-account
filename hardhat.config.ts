@@ -1,7 +1,6 @@
 import "@nomicfoundation/hardhat-toolbox";
 import type { HardhatUserConfig, HttpNetworkUserConfig } from "hardhat/types";
 import "@nomicfoundation/hardhat-verify";
-import "@nomiclabs/hardhat-waffle";
 import "solidity-coverage";
 import "@matterlabs/hardhat-zksync-deploy";
 import "@matterlabs/hardhat-zksync-solc";
